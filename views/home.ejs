@@ -1,0 +1,39 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SPS</title>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- <script src="main.js"></script> -->
+    <style>
+        body{
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .jumbotron{
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('partial/navbar')%>
+        <div class="jumbotron">
+            <h1>SPS</h1>
+        </div>
+        <div>
+            <form action="/post/search" method="POST" >
+                <p class="lead">Your searches
+                <input type="text" id="" name="search" value="" required>
+                <button type="submit">Search</button> </p>
+            </form>
+            <hr>
+            
+        </div>
+        <%- include('partial/footer.ejs') %>
+    </div>
+</body>
+</html>

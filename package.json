@@ -1,0 +1,14 @@
+{
+    "name": "SPS",
+    "version": "0.0.1",
+    "private": true,
+    "description": "Search Pictures Save System",
+    "scripts": {},
+    "keywords": [],
+    "author": "Solid Stack S.L.",
+    "license": "ISC",
+    "dependencies": {
+        "ejs": "^2.5.7",
+        "express": "^4.16.2"
+    }
+}
