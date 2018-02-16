@@ -3,6 +3,8 @@ var app = espress();
 var path = require('path');
 var bodyParser = require('body-parser');
 const https = require('https');
+var request = require('request');
+
 
 
 // app.set('views',path.join(__dirname, 'Mypexel'));
@@ -20,13 +22,9 @@ app.post ('/post/search' ,(req,res)=>{
   var apiKey = '8047832-4eb74703bfe5535846a8f3959'
   var url = 'https://pixabay.com/api/?key=' +apiKey+ '&q=' +rec + '&image_type=all';
   
-  https.getJSON(url, (data)=>{
-      if (parseInt(data.totalHits)>0)
-        https.each(data.hits, (i, hit)=>{
-            console.log(hit.pageURL);
-        });
-       else
-        console.log('NOOOOOOOOOOO') 
+  request (url, (error,response,body)=>{
+    
+    console.log(JSON.parse(body));
   })
 
 //   res.send(url);
