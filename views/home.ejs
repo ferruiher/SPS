@@ -30,8 +30,20 @@
                 <input type="text" id="" name="search" value="" required>
                 <button type="submit">Search</button> </p>
             </form>
-            <hr>
+            <hr>    
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="list-group">
+                    <!-- loop over blog posts and render them -->
+                  <% picArray.forEach((pic) => { %>
+                    <a href= "<%=pic %>" class="list-group-item">
+                    <img src = "<%=pic %>">
             
+                    </a>
+                  <% }) %>
+                </div>
+            </div>
         </div>
         <%- include('partial/footer.ejs') %>
     </div>
