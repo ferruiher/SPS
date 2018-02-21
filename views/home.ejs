@@ -6,7 +6,7 @@
     <title>SPS</title>
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
     <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <!-- <script src="main.js"></script> -->
     <style>
         body{
@@ -20,32 +20,47 @@
 </head>
 <body>
     <div class="container">
-        <%- include('partial/navbar')%>
-        <div class="jumbotron">
-            <h1>SPS</h1>
-        </div>
-        <div>
-            <form action="/post/search" method="POST" >
-                <p class="lead">Your searches
-                <input type="text" id="" name="search" value="" required>
-                <button type="submit">Search</button> </p>
-            </form>
-            <hr>    
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="list-group">
-                    <!-- loop over blog posts and render them -->
-                  <% picArray.forEach((pic) => { %>
-                    <a href= "<%=pic %>" class="list-group-item">
-                    <img src = "<%=pic %>">
-            
-                    </a>
-                  <% }) %>
-                </div>
+        <div class="">
+            <%- include('partial/navbar')%>
+            <div class="jumbotron">
+                <h1 class="text-center">SPS</h1>
             </div>
         </div>
-        <%- include('partial/footer.ejs') %>
+        <div class="">
+            <div>
+                <form class = "text-center" action="/post/search" method="POST" >
+                    <p class="lead">Your searches
+                    <input type="text" id="" name="search" value="" required>
+                    <button type="submit">Search</button> </p>
+                </form>
+                <br>    
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                    <% let i = 0; %>
+                    <% results.forEach((result) => { %>
+                    <%  if(i % 4 == 0){ %>
+                        <div class="row">
+                    <% } %>
+                    <div class="col-md-3">
+                        <img src="<%= result.previewUrl %>">
+                        <br>
+                        <label >
+                            <input id="result.id" type="checkbox" value> Select
+                        </label>
+                    </div>
+                    <%  if(i % 4 == 3){ %>
+                        </div>
+                    <% } %>
+                    <% i++ %>
+                    <% }) %>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <%- include('partial/footer.ejs') %>
+        </div>
     </div>
 </body>
 </html>

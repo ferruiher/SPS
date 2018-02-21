@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ limit: '5mb', extended: false }));
 app.use(bodyParser.json({ limit: '5mb' }));
 
 app.get('/', (req, res) =>{
-    res.render('home', {picArray: picArray})
+    res.render('home', {results: []})
 })
 
 app.post ('/post/search' ,(req,res)=>{
@@ -26,21 +26,22 @@ app.post ('/post/search' ,(req,res)=>{
   request (url, (error,response,body)=>{
     
     var picJsons = JSON.parse(body);
+    var viewJsonArray = [];
     //var picArray = [];
     //console.log(picJsons);
     
     if (parseInt(picJsons.totalHits) > 0){
       var i = 0;
       picJsons.hits.forEach(element => {
-        picArray.push(picJsons.hits[i].previewURL);
+        viewJsonArray.push({ previewUrl: picJsons.hits[i].previewURL, id: "" });
         i++
       });
     }
     else
       console.log ('Noooo pictures');
     
-    //res.send(picArray);
-    res.render('home', {picArray: picArray})
+    // console.log(picArray);
+    res.render('home', {results: viewJsonArray})
   })
 
 })
