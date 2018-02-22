@@ -19,6 +19,8 @@
     </style>
 </head>
 <body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
     <div class="container">
         <div class="">
             <%- include('partial/navbar')%>
@@ -38,6 +40,7 @@
         </div>
         <div class="row">
             <div class="container">
+                <!-- <form name="download" action="/post/download" method="POST" > -->
                     <% let i = 0; %>
                     <% results.forEach((result) => { %>
                     <%  if(i % 4 == 0){ %>
@@ -47,7 +50,7 @@
                         <img src="<%= result.previewUrl %>">
                         <br>
                         <label >
-                            <input id="result.id" type="checkbox" value> Select
+                            <input id="<%=result.id%>" type="checkbox" class="miclase" value> Select
                         </label>
                     </div>
                     <%  if(i % 4 == 3){ %>
@@ -57,10 +60,59 @@
                     <% }) %>
             </div>
         </div>
+        <div class="row">
+            <div class="container">
+                    <button id="mybuttonid" type="button" class="btn btn-primary btn-lg btn-block">Download</button> </p>
+                <!-- </form> -->
+            </div>
+        </div>
         <br>
         <div class="row">
             <%- include('partial/footer.ejs') %>
         </div>
     </div>
+    <script>
+        $(function()
+        {
+            function catchIds() {
+                var ids = [];
+
+                console.log('catchIds');
+
+                $('.miclase').each(function(index){
+                    console.log('index');
+
+                    if($(this).is(":checked")){
+                        console.log('checked');
+
+                        ids.push($(this).attr('id'));
+                        console.log($(this));
+                    }            
+                });
+                
+                
+                // $.post("/post/download", { "ids": ids}).done(function(){
+                //     alert('done');
+                // })
+                var params = { "ids": ids};
+                $.ajax({
+                    type: "POST",
+                    url: "/post/download",
+                    traditional: true,
+                    data: params
+                }).done(() => {
+                    resolve();
+                })
+                .fail((err) => {
+                    _cn(err, url, params);
+                    reject(err);
+                })
+        }
+
+        $('#mybuttonid').click(function(){
+            catchIds();
+        })
+    });        
+    </script>
 </body>
 </html>

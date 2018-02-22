@@ -4,6 +4,9 @@ var path = require('path');
 var bodyParser = require('body-parser');
 const https = require('https');
 var request = require('request');
+var array = require('array');
+
+
 var picArray = [];
 //const picJsons = {};
 
@@ -32,8 +35,9 @@ app.post ('/post/search' ,(req,res)=>{
     
     if (parseInt(picJsons.totalHits) > 0){
       var i = 0;
+      
       picJsons.hits.forEach(element => {
-        viewJsonArray.push({ previewUrl: picJsons.hits[i].previewURL, id: "" });
+        viewJsonArray.push({ previewUrl: picJsons.hits[i].previewURL, id: picJsons.hits[i].webformatURL });
         i++
       });
     }
@@ -44,6 +48,24 @@ app.post ('/post/search' ,(req,res)=>{
     res.render('home', {results: viewJsonArray})
   })
 
+})
+
+app.post('/post/download', (req, res)=>{
+  console.log(req.body);
+  var pepe = 'pepe';
+  var download = req.body.ids;
+  console.log ("---------------------");
+  
+  if (typeof download === 'string'){
+    console.log("Es un String");
+    
+
+  }else{
+    console.log("Es un ARARY");
+  }
+  console.log (download);
+  //res.send(req.body.ids);
+  // res.render('home', {results: []})
 })
 
 app.listen (8082)
