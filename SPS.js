@@ -9,14 +9,12 @@ var formidable = require('formidable');
 var fs = require ('fs');
 var download = require('image-downloader');
 
-const FILEPATH = "/home/ubu/Descargas/tem"
+const FILEPATH = "/home/ubu/Descargas/tem/"
 const SAVEPATH = '/home/ubu/Imágenes/'
 
 var picArray = [];
-//const picJsons = {};
 
 
-// app.set('views',path.join(__dirname, 'Mypexel'));
 app.set('view engine', 'ejs')
 
 app.use(bodyParser.urlencoded({ limit: '5mb', extended: false }));
@@ -56,14 +54,16 @@ app.post ('/post/search' ,(req,res)=>{
 })
 
 app.post('/post/download', (req, res)=>{
-  // console.log(req.body);
-  // var pepe = 'pepe';
+ 
+  
   var downloadUrl = req.body.ids;
   console.log (downloadUrl);
   console.log ("---------------------");
   
   if (typeof downloadUrl === 'string'){
     console.log("Es un String");
+
+    // downdload one image, create object
     var options = {
       url: downloadUrl,
       dest: FILEPATH
@@ -71,19 +71,45 @@ app.post('/post/download', (req, res)=>{
     
   download.image(options).then((result)=>{
     var filename = result.filename.substr(24, result.filename.length - 1 );
-    // console.log(filename + '--------------------------------------------------------------------------------------------------------------');
     var oldpath = result.filename;
     var newpath = SAVEPATH + filename;
-    // console.log ('the newpath is: '+ newpath+ '+++++++++++++++++++++++++');
+    
     fs.rename(oldpath, newpath, (err)=>{
       if (err) throw err;
-      res.write('File upload and moved');
-      res.end;
     })
+    fs.stat(newpath, (err, stat)=>{
+      let flag;
+      if (err == null){
+        console.log('File exixts');
+        flag = 0;
+      }else if (err.code == 'ENOENT') {
+        console.log('File NO exists')
+        flag = 1;
+      }else{
+        console.log('Some other error', err.code);
+        flag  = 2;
+      }
+
+      switch (flag) {
+        case 0:
+          console.log('File/s is download ok BEFORE SEND JSON');
+          res.json({responses: 'File/s is download ok'}) ; 
+          console.log('File/s is download ok');
+          break;
+        case 1:
+          res.json({responses: 'File/s is not download ok'})
+          break;
+        default:
+          re.json({responses: 'Fatal eror, unplug the microware'})
+          break;
+      }
+
+    });
   }).catch((err)=>{
     console.log("download error:")
     console.log(err)
   });
+
    
   }else{
     console.log("Es un ARARY");
@@ -97,25 +123,25 @@ app.post('/post/download', (req, res)=>{
       
     download.image(options).then((result)=>{
       var filename = result.filename.substr(24, result.filename.length - 1 );
-      // console.log(filename + '--------------------------------------------------------------------------------------------------------------');
+      
       var oldpath = result.filename;
       var newpath = SAVEPATH + filename;
-      // console.log ('the newpath is: '+ newpath+ '+++++++++++++++++++++++++');
+      
       fs.rename(oldpath, newpath, (err)=>{
         if (err) throw err;
-        res.write('File upload and moved');
-        // console.log('File upload and moved');
-        res.end;
+        
+        
       })
     }).catch((err)=>{
       console.log("download error:")
       console.log(err)
     });
-    });
-  }
-  //res.send(req.body.ids);
-  // res.render('home', {results: []})
+  });
+  
+}
+  
 })
+
 
 app.listen (8082)
 

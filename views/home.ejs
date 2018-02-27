@@ -77,31 +77,24 @@
             function catchIds() {
                 var ids = [];
 
-                console.log('catchIds');
-
                 $('.miclase').each(function(index){
-                    console.log('index');
+                    // console.log('index');
 
                     if($(this).is(":checked")){
-                        console.log('checked');
 
                         ids.push($(this).attr('id'));
-                        console.log($(this));
                     }            
                 });
                 
-                
-                // $.post("/post/download", { "ids": ids}).done(function(){
-                //     alert('done');
-                // })
                 var params = { "ids": ids};
                 $.ajax({
                     type: "POST",
                     url: "/post/download",
                     traditional: true,
                     data: params
-                }).done(() => {
-                    resolve();
+                }).done((res) => {
+                    alert(res.responses)
+                    window.location.href= "/";
                 })
                 .fail((err) => {
                     _cn(err, url, params);
