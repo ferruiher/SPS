@@ -57,72 +57,105 @@ app.post('/post/download', (req, res)=>{
  
   
   var downloadUrl = req.body.ids;
-  // var flag = SelectStringOrArrys(downloadUrl)
+  var urldownload = SelectStringOrArrys(downloadUrl);
+  console.log('la url antes del metodo downlaodAndSave: ' + urldownload);
+  downloadAndSave(urldownload,FILEPATH).then((newpath)=>{
+    return existsImage(newpath);
+  }).then((flag)=>{
+    switch (flag) {
+      case 0:
+        console.log('File/s is download ok BEFORE SEND JSON');
+        res.json({responses: 'File/s is download ok'}) ; 
+        console.log('File/s is download ok');
+        break;
+      case 1:
+        res.json({responses: 'File/s is not download ok'})
+        break;
+      case 2:
+        res.json({responses: 'Another error when downloading  '})
+        break;
+      default:
+        res.json({responses: 'Fatal eror, unplug the microware'})
+        break;
+    }
+  }).catch ((err)=>{
+    console.log('FIN  ' + err);
+  })
 
   console.log (downloadUrl);
   console.log ("---------------------");
   
-  if (typeof downloadUrl === 'string'){
-    console.log("Es un String");
+  // if (typeof downloadUrl === 'string'){
+  //   console.log("Es un String");
 
-    downloadAndSave(downloadUrl, FILEPATH).then((result)=>{
+  //   downloadAndSave(downloadUrl, FILEPATH).then((result)=>{
 
-      let flag = result;
+  //     let flag = result;
 
-      switch (flag) {
-        case 0:
-          console.log('File/s is download ok BEFORE SEND JSON');
-          res.json({responses: 'File/s is download ok'}) ; 
-          console.log('File/s is download ok');
-          break;
-        case 1:
-          res.json({responses: 'File/s is not download ok'})
-          break;
-        case 2:
-          res.json({responses: 'Another error when downloading  '})
-          break;
-        default:
-          res.json({responses: 'Fatal eror, unplug the microware'})
-          break;
-      }
+  //     switch (flag) {
+  //       case 0:
+  //         console.log('File/s is download ok BEFORE SEND JSON');
+  //         res.json({responses: 'File/s is download ok'}) ; 
+  //         console.log('File/s is download ok');
+  //         break;
+  //       case 1:
+  //         res.json({responses: 'File/s is not download ok'})
+  //         break;
+  //       case 2:
+  //         res.json({responses: 'Another error when downloading  '})
+  //         break;
+  //       default:
+  //         res.json({responses: 'Fatal eror, unplug the microware'})
+  //         break;
+  //     }
 
-    });
+  //   });
     
     
 
-  }else{
-    console.log("Es un ARARY");
+  // }else{
+  //   console.log("Es un ARARY");
     
-    downloadUrl.forEach(element => {
+  //   downloadUrl.forEach(element => {
       
-      var options = {
-        url: element,
-        dest: FILEPATH
-      }
+  //     var options = {
+  //       url: element,
+  //       dest: FILEPATH
+  //     }
       
-    download.image(options).then((result)=>{
-      var filename = result.filename.substr(24, result.filename.length - 1 );
+  //     download.image(options).then((result)=>{
+  //       var filename = result.filename.substr(24, result.filename.length - 1 );
       
-      var oldpath = result.filename;
-      var newpath = SAVEPATH + filename;
+  //       var oldpath = result.filename;
+  //       var newpath = SAVEPATH + filename;
       
-      fs.rename(oldpath, newpath, (err)=>{
-        if (err) throw err;
+  //       fs.rename(oldpath, newpath, (err)=>{
+  //         if (err) throw err;
         
         
-      })
-    }).catch((err)=>{
-      console.log("download error:")
-      console.log(err)
-    });
-  });
+  //       })
+  //     }).catch((err)=>{
+  //       console.log("download error:")
+  //       console.log(err)
+  //     });
+  //   });
   
-}
+  // }
   
 })
-// function SelectStringOrArrys(StringArrays) {
+function SelectStringOrArrys(StringArrays) {
   
-// }
+  var strinToArray = [];
+  if (typeof StringArrays === 'string'){
+    console.log("Es un String en la function SelectStringOrArrys");
+    strinToArray.push(StringArrays);
+    return StringArrays;
+  }else {
+    console.log("Es un Array en la function SelectStringOrArrys");
+    return StringArrays;
+  }
+ 
+}
 
 function downloadAndSave(pathForElement,FILEPATH) {
   return new Promise( function (resolver, reject) {
@@ -141,22 +174,15 @@ function downloadAndSave(pathForElement,FILEPATH) {
       console.log ('La nueva ruta donde guardar antes de guardar: ' + newpath)
       fs.rename(oldpath, newpath, (err)=>{
         if (err) throw err;
-      
-      existsImage(newpath).then((resultEI)=>{
-        
-         flag = resultEI;
-         console.log ('result de existsImage es : ' + resultEI);
-         console.log ('result de existsImage en la variable flag es :' + flag);
-         if (err && flag > 3 ){
-           reject(err)
-           console.log('Dentro del if del error downloadAndSav');
-           console.log(err);
-         }else {
-           console.log('El valor de Flag antes del switch en downloadAndSave es : '+ flag);
-           resolver (flag);
-         }
-      });
 
+        if (err){
+          reject(err)
+          console.log('Dentro del if del error downloadAndSav');
+          console.log(err);
+        }else {
+          console.log('El valor de Flag antes del switch en downloadAndSave es : '+ flag);
+          resolver (newpath);
+        }
 
       });
      
