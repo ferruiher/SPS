@@ -57,38 +57,17 @@ app.post('/post/download', (req, res)=>{
  
   
   var downloadUrl = req.body.ids;
+  // var flag = SelectStringOrArrys(downloadUrl)
+
   console.log (downloadUrl);
   console.log ("---------------------");
   
   if (typeof downloadUrl === 'string'){
     console.log("Es un String");
 
-    // downdload one image, create object
-    var options = {
-      url: downloadUrl,
-      dest: FILEPATH
-    }
-    
-  download.image(options).then((result)=>{
-    var filename = result.filename.substr(24, result.filename.length - 1 );
-    var oldpath = result.filename;
-    var newpath = SAVEPATH + filename;
-    
-    fs.rename(oldpath, newpath, (err)=>{
-      if (err) throw err;
-    })
-    fs.stat(newpath, (err, stat)=>{
-      let flag;
-      if (err == null){
-        console.log('File exixts');
-        flag = 0;
-      }else if (err.code == 'ENOENT') {
-        console.log('File NO exists')
-        flag = 1;
-      }else{
-        console.log('Some other error', err.code);
-        flag  = 2;
-      }
+    downloadAndSave(downloadUrl, FILEPATH).then((result)=>{
+
+      let flag = result;
 
       switch (flag) {
         case 0:
@@ -99,18 +78,18 @@ app.post('/post/download', (req, res)=>{
         case 1:
           res.json({responses: 'File/s is not download ok'})
           break;
+        case 2:
+          res.json({responses: 'Another error when downloading  '})
+          break;
         default:
-          re.json({responses: 'Fatal eror, unplug the microware'})
+          res.json({responses: 'Fatal eror, unplug the microware'})
           break;
       }
 
     });
-  }).catch((err)=>{
-    console.log("download error:")
-    console.log(err)
-  });
+    
+    
 
-   
   }else{
     console.log("Es un ARARY");
     
@@ -141,7 +120,85 @@ app.post('/post/download', (req, res)=>{
 }
   
 })
+// function SelectStringOrArrys(StringArrays) {
+  
+// }
 
+function downloadAndSave(pathForElement,FILEPATH) {
+  return new Promise( function (resolver, reject) {
+    
+    let flag = 5;
+    var newpath = '';
+    var options = {
+      url: pathForElement,
+      dest: FILEPATH
+    }
+    
+    download.image(options).then((result)=>{
+      var filename = result.filename.substr(24, result.filename.length - 1 );
+      var oldpath = result.filename;
+      var newpath = SAVEPATH + filename;
+      console.log ('La nueva ruta donde guardar antes de guardar: ' + newpath)
+      fs.rename(oldpath, newpath, (err)=>{
+        if (err) throw err;
+      
+      existsImage(newpath).then((resultEI)=>{
+        
+         flag = resultEI;
+         console.log ('result de existsImage es : ' + resultEI);
+         console.log ('result de existsImage en la variable flag es :' + flag);
+         if (err && flag > 3 ){
+           reject(err)
+           console.log('Dentro del if del error downloadAndSav');
+           console.log(err);
+         }else {
+           console.log('El valor de Flag antes del switch en downloadAndSave es : '+ flag);
+           resolver (flag);
+         }
+      });
+
+
+      });
+     
+    }).catch((err)=>{
+      console.log("download error:")
+      console.log(err)
+    });
+  });
+  // console.log ('La nueva ruta de guardar depues de guardar:' + pathSave)
+  
+}
+
+function existsImage(pathImage) {
+  return new Promise(function (resolver, reject) {
+    
+    let flag = 9;
+    console.log ('La ruta para ver si existe la imagen es:      '+pathImage)
+    fs.stat(pathImage, (err, stat)=>{
+      
+      if (err == null){
+        console.log('File exixts');
+        flag = 0;
+        console.log('el valor del flag en existsImage es: ' + flag);
+      }else if (err.code == 'ENOENT') {
+        console.log('File NO exists')
+        flag = 1;
+      }else{
+        console.log('Some other error', err.code);
+        flag  = 2;
+      }
+      if (err && flag > 3 ){
+        reject(err)
+        console.log('Dentro del if del error existsImage');
+        console.log(err);
+      }else {
+        console.log('El valor de Flag antes del switch en existsImage es : '+ flag);
+        resolver (flag);
+      }
+    });
+  });
+  
+}
 
 app.listen (8082)
 
