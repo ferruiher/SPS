@@ -23,7 +23,7 @@ app.use(bodyParser.json({ limit: '5mb' }));
 app.get('/', (req, res) =>{
     res.render('home', {results: []})
 })
-
+/*
 app.post ('/post/search' ,(req,res)=>{
   var rec = req.body.search;
   var apiKey = '8047832-4eb74703bfe5535846a8f3959'
@@ -52,7 +52,7 @@ app.post ('/post/search' ,(req,res)=>{
   })
   
 })
-/*
+
 app.post('/post/download', (req, res)=>{
  
   
@@ -170,5 +170,5 @@ function existsImage(pathImage) {
   
 }
 */
-app.listen (8082)
-  console.log ('listeting on port 8082')
+app.listen (3082)
+  console.log ('listeting on port 3082')

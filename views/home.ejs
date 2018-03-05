@@ -30,34 +30,18 @@
         </div>
         <div class="">
             <div>
-                <form class = "text-center" action="/post/search" method="POST" >
+                <form name="searchform" class = "text-center" action=""  >
                     <p class="lead">Your searches
-                    <input type="text" id="" name="search" value="" required>
-                    <button type="submit">Search</button> </p>
+                    <input type="text" id="search" name="search" value="" required>
+                    <!-- <button id="mybuttonsearch" type="button">Search</button> </p> -->
+                    <input type="submit" name="submit" class="button" id="buttonform" value="Dowload">
                 </form>
                 <br>    
             </div>
         </div>
         <div class="row">
-            <div class="container">
-                <!-- <form name="download" action="/post/download" method="POST" > -->
-                    <% let i = 0; %>
-                    <% results.forEach((result) => { %>
-                    <%  if(i % 4 == 0){ %>
-                        <div class="row">
-                    <% } %>
-                    <div class="col-md-3">
-                        <img src="<%= result.previewUrl %>">
-                        <br>
-                        <label >
-                            <input id="<%=result.id%>" type="checkbox" class="miclase" value> Select
-                        </label>
-                    </div>
-                    <%  if(i % 4 == 3){ %>
-                        </div>
-                    <% } %>
-                    <% i++ %>
-                    <% }) %>
+            <div class="container" id="log"> 
+                
             </div>
         </div>
         <div class="row">
@@ -89,23 +73,68 @@
                 var params = { "ids": ids};
                 $.ajax({
                     type: "POST",
-                    url: "http://localhost:8083/post/download",
+                    url: "http://localhost:3083/post/download",
                     traditional: true,
                     data: params
                 }).done((res) => {
                     alert(res.responses)
-                    window.location.href= "http://localhost:8082";
+                    window.location.href= "http://localhost:3082";
                 })
                 .fail((err) => {
-                    _cn(err, url, params);
+                    // _cn(err, url, params);
+                    console.log(err)
                     reject(err);
                 })
-        }
+            }
 
-        $('#mybuttonid').click(function(){
-            catchIds();
-        })
-    });        
+            function seachimage() {
+                
+                var word = $("input#search").val();
+                var params = {"word": word};
+                console.log ('LA  PALABRA A BUSCAR ES:' + word);
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:3083/post/search",
+                    traditional: true,
+                    data: params
+                }).done((res) => {
+                    
+                    var stringhtml = '';
+                    let i = 0; 
+                    res.results.forEach((result) => {
+                        if(i % 4 == 0){
+                        stringhtml = stringhtml.concat('<div class="row">');
+                        }
+                        stringhtml = stringhtml.concat('<div class="col-md-3"> <img src="');
+                        stringhtml = stringhtml.concat( result.previewUrl);
+                        stringhtml = stringhtml.concat('"> <br> <label > <input id="');
+                        stringhtml = stringhtml.concat(result.id);
+                        stringhtml = stringhtml.concat('" type="checkbox" class="miclase" value> Select </label>  </div> ');
+                        if(i % 4 == 3){ 
+                        stringhtml = stringhtml.concat('</div>');
+                        console.log(stringhtml);
+                        }
+                        i++
+                    })
+                    var $log = $("#log");
+                    var html = $.parseHTML(stringhtml);
+                    $log.append(html);
+                })
+                .fail((err) => {
+                    // _cn(err, url, word);
+                    console.log(err)
+                    reject(err);
+                })
+            }
+            $('#mybuttonid').click(function(){
+                catchIds();
+            })
+
+            $('#buttonform').click(function(e){
+                e.preventDefault(); // evita que el form haga el action, apersar del q el action este vacio.
+                seachimage();
+            })
+        });        
     </script>
 </body>
 </html>

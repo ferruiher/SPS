@@ -22,6 +22,39 @@ app.use (function (req, res, next) {
     next();
 })
 
+app.post ('/post/search' ,(req,res)=>{
+    var rec = req.body.word;
+    var apiKey = '8047832-4eb74703bfe5535846a8f3959'
+    var url = 'https://pixabay.com/api/?key=' +apiKey+ '&q=' +rec + '&image_type=all' ;
+    
+    console.log('La palabra de busqueda es: ' + rec);
+    console.log('la urle es: ' + url);
+    
+    request(url, (error,response,body)=>{
+      
+      var picJsons = JSON.parse(body);
+      var viewJsonArray = [];
+      //var picArray = [];
+    //   console.log(picJsons);
+      
+      if (parseInt(picJsons.totalHits) > 0){
+        var i = 0;
+        
+        picJsons.hits.forEach(element => {
+          viewJsonArray.push({ previewUrl: picJsons.hits[i].previewURL, id: picJsons.hits[i].webformatURL });
+          i++
+        });
+        console.log('Imagenes Buscadas y guardadas en el Array, son: ' + i);
+      }
+      else
+        console.log ('Noooo pictures');
+      
+      // console.log(picArray);
+      res.jsonp({results: viewJsonArray})
+    })
+    
+  })
+
 app.post('/post/download', (req, res)=>{
  
   
@@ -54,7 +87,7 @@ app.post('/post/download', (req, res)=>{
     console.log (downloadUrl);
   console.log ("---------------------");
      
-  })
+})
 
 function SelectStringOrArrys(StringArrays) {
   
@@ -139,5 +172,5 @@ function existsImage(pathImage) {
     
 }
 
-app.listen (8083)
-  console.log ('listeting on port 8083')
+app.listen (3083)
+  console.log ('listeting on port 3083')
