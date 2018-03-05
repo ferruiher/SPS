@@ -16,6 +16,11 @@ const SAVEPATH = '/home/ubu/Imágenes/'
 
 app.use(bodyParser.urlencoded({ limit: '5mb', extended: false }));
 app.use(bodyParser.json({ limit: '5mb' }));
+app.use (function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Header", "Origin, X-Requested-with, Content-Type, Accept");
+    next();
+})
 
 app.post('/post/download', (req, res)=>{
  

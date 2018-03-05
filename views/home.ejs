@@ -89,12 +89,12 @@
                 var params = { "ids": ids};
                 $.ajax({
                     type: "POST",
-                    url: "/post/download",
+                    url: "http://localhost:8083/post/download",
                     traditional: true,
                     data: params
                 }).done((res) => {
                     alert(res.responses)
-                    window.location.href= "www.marca.com";
+                    window.location.href= "http://localhost:8082";
                 })
                 .fail((err) => {
                     _cn(err, url, params);

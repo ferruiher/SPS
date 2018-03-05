@@ -52,7 +52,7 @@ app.post ('/post/search' ,(req,res)=>{
   })
   
 })
-
+/*
 app.post('/post/download', (req, res)=>{
  
   
@@ -169,6 +169,6 @@ function existsImage(pathImage) {
   });
   
 }
-
+*/
 app.listen (8082)
   console.log ('listeting on port 8082')
