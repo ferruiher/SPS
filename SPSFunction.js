@@ -1,3 +1,4 @@
+var config = require('./config');
 var espress =  require('express');
 var app = espress();
 var path = require('path');
@@ -9,10 +10,9 @@ var formidable = require('formidable');
 var fs = require ('fs');
 var download = require('image-downloader');
 
-const FILEPATH = "/home/ubu/Descargas/tem/"
-const SAVEPATH = '/home/ubu/Imágenes/'
+const FILEPATH = config.paths.FILEPATH;
+const SAVEPATH = config.paths.SAVEPATH;
 
-// app.set('view engine', 'ejs')
 
 app.use(bodyParser.urlencoded({ limit: '5mb', extended: false }));
 app.use(bodyParser.json({ limit: '5mb' }));
@@ -24,11 +24,14 @@ app.use (function (req, res, next) {
 
 app.post ('/post/search' ,(req,res)=>{
     var rec = req.body.word;
-    var apiKey = '8047832-4eb74703bfe5535846a8f3959'
-    var url = 'https://pixabay.com/api/?key=' +apiKey+ '&q=' +rec + '&image_type=all' ;
+    var apiKey = config.pixabay.apiKey
+    var numPage = config.pixabay.numPag
+    var numImagePage = config.pixabay.numImagePage
+    console.log('El numero de imagenes por pagina: ' + numImagePage)
+    var url = 'https://pixabay.com/api/?key=' +apiKey+ '&q=' +rec + '&image_type=all&per_page='+numImagePage ;
     
     console.log('La palabra de busqueda es: ' + rec);
-    console.log('la urle es: ' + url);
+    // console.log('la urle es: ' + url);
     
     request(url, (error,response,body)=>{
       
@@ -44,7 +47,7 @@ app.post ('/post/search' ,(req,res)=>{
           viewJsonArray.push({ previewUrl: picJsons.hits[i].previewURL, id: picJsons.hits[i].webformatURL });
           i++
         });
-        console.log('Imagenes Buscadas y guardadas en el Array, son: ' + i);
+        console.log('Imagenes Buscadas y mostradas en el Array, son: ' + i);
       }
       else
         console.log ('Noooo pictures');
@@ -61,8 +64,10 @@ app.post('/post/download', (req, res)=>{
     var downloadUrl = req.body.ids;
     var urldownload = SelectStringOrArrys(downloadUrl);
     console.log('la url antes del metodo downlaodAndSave: ' + urldownload);
-    downloadAndSave(urldownload,FILEPATH).then((newpath)=>{
-      return existsImage(newpath);
+    downloadAndSave(urldownload,FILEPATH).then((savePath)=>{
+      return renamePath(savePath);
+    }).then((savePath)=>{
+      return existsImage(existsPath);
     }).then((flag)=>{
       switch (flag) {
         case 0:
@@ -84,7 +89,7 @@ app.post('/post/download', (req, res)=>{
       console.log('FIN  ' + err);
     })
   
-    console.log (downloadUrl);
+    // console.log (downloadUrl);
   console.log ("---------------------");
      
 })
@@ -95,9 +100,10 @@ function SelectStringOrArrys(StringArrays) {
     if (typeof StringArrays === 'string'){
       console.log("Es un String en la function SelectStringOrArrys");
       strinToArray.push(StringArrays);
-      return StringArrays;
+      return strinToArray;
+      console.log('de string to array: '+ strinToArray);
     }else {
-      console.log("Es un Array en la function SelectStringOrArrys");
+      console.log("Es un Array en la function SelectStringOrArrys" + StringArrays);
       return StringArrays;
     }
    
@@ -105,72 +111,96 @@ function SelectStringOrArrys(StringArrays) {
   
 function downloadAndSave(pathForElement,FILEPATH) {
     return new Promise( function (resolver, reject) {
-      
-      let flag = 5;
-      var newpath = '';
-      var options = {
-        url: pathForElement,
-        dest: FILEPATH
-      }
-      
-      download.image(options).then((result)=>{
-        var filename = result.filename.substr(24, result.filename.length - 1 );
-        var oldpath = result.filename;
-        var newpath = SAVEPATH + filename;
-        console.log ('La nueva ruta donde guardar antes de guardar: ' + newpath)
-        fs.rename(oldpath, newpath, (err)=>{
-          if (err) throw err;
-  
-          if (err){
-            reject(err)
-            console.log('Dentro del if del error downloadAndSav');
-            console.log(err);
-          }else {
-            console.log('El valor de Flag antes del switch en downloadAndSave es : '+ flag);
-            resolver (newpath);
-          }
-  
-        });
-       
+      var savePath = [];
+      var downloadPromise = [];
+      let ds = 0;
+      let ds1 = 0;
+      pathForElement.forEach(element =>{
+
+        let flag = 5;
+        var newpath = '';
+        var options = {
+          url: element,
+          dest: FILEPATH
+        }
+        downloadPromise.push( download.image(options));
+        ds ++;
+        console.log('en downloadAndSave, el número de elemetos en foreach son: ' + ds); 
+      }); //Fin de foreach
+      Promise.all(downloadPromise).then((res) =>{
+        //resolver (savePath);
+        console.log ('dentro del Promise.all');
+
+        res.forEach(result=>{  
+          ds1++;
+          savePath.push(result.filename);
+          console.log('El path del elemento en tem es:' + result.filename );
+          console.log('en downloadAndSave, el número de elemetos en foreach1 son: ' + ds1);
+          
+        });//foreach1
+        console.log ('en downloadAndSave, los paths antes de mandar son: ' + savePath);
+        resolver(savePath);
       }).catch((err)=>{
-        console.log("download error:")
-        console.log(err)
-      });
-    });
-    // console.log ('La nueva ruta de guardar depues de guardar:' + pathSave)
-    
-}
-  
+        console.log(err);
+      });//Promise.all 
+  });// fin de Promise
+}// fin function
+
+function renamePath(ArrayPath) {
+  return new Promise (function (resolver, reject) {
+    existsPath = []
+    console.log('En renamePath, el array de estrada es: ' + ArrayPath);
+    ArrayPath.forEach(result=>{  
+      console.log('En renamePath, el path del elemento en tem es:' + result);
+      var filename = result.substr(24, result.length - 1 );
+      var oldpath = result;
+      var newpath = SAVEPATH + filename;
+      console.log ('La nueva ruta donde guardar antes de guardar: ' + newpath)
+      fs.renameSync(oldpath, newpath);
+      existsPath.push(newpath);
+      
+    });//foreach
+    resolver(existsPath)
+  })// fin del Promise
+}// fin de Function
+
 function existsImage(pathImage) {
     return new Promise(function (resolver, reject) {
       
+      var flags = [0];
       let flag = 9;
-      console.log ('La ruta para ver si existe la imagen es:      '+pathImage)
-      fs.stat(pathImage, (err, stat)=>{
-        
-        if (err == null){
+      pathImage.forEach(element =>{
+
+        console.log ('La ruta para ver si existe la imagen es:      '+pathImage)
+        try {
+          fs.statSync(element);//, (err, stat)=>{
+          flags.push(0);
           console.log('File exixts');
-          flag = 0;
-          console.log('el valor del flag en existsImage es: ' + flag);
-        }else if (err.code == 'ENOENT') {
+          console.log('el valor del flags en existsImage es: ' + flags);
+          
+        } catch (error) {
           console.log('File NO exists')
-          flag = 1;
-        }else{
-          console.log('Some other error', err.code);
-          flag  = 2;
-        }
-        if (err && flag > 3 ){
-          reject(err)
-          console.log('Dentro del if del error existsImage');
-          console.log(err);
-        }else {
-          console.log('El valor de Flag antes del switch en existsImage es : '+ flag);
-          resolver (flag);
-        }
+          flags.push(1);
+        }          
+      });//foreach
+      let suma = 0;
+      flags.forEach(num =>{
+        suma +=num;
+        console.log('El valor de la suma dentro del foreach en existsImage es : '+ suma);
       });
+      if (suma == 0){
+        flag = suma;
+        console.log('El valor de Flag despues del switch en existsImage es : '+ flag);
+        resolver (flag);
+        
+      }else {
+        reject(err)
+        console.log('Dentro del if del error existsImage');
+        console.log(err);
+      }
     });
     
 }
 
-app.listen (3083)
-  console.log ('listeting on port 3083')
+app.listen (config.server.portUI)
+  console.log ('listeting on port: '+ config.server.portUI);

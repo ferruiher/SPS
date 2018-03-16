@@ -1,3 +1,4 @@
+var config = require('./config');
 var espress =  require('express');
 var app = espress();
 var path = require('path');
@@ -9,10 +10,6 @@ var formidable = require('formidable');
 var fs = require ('fs');
 var download = require('image-downloader');
 
-const FILEPATH = "/home/ubu/Descargas/tem/"
-const SAVEPATH = '/home/ubu/Imágenes/'
-
-var picArray = [];
 
 
 app.set('view engine', 'ejs')
@@ -24,5 +21,5 @@ app.get('/', (req, res) =>{
     res.render('home', {results: []})
 })
 
-app.listen (3082)
-  console.log ('listeting on port 3082')
+app.listen (config.server.portApi)
+  console.log ('listeting on port: '+ config.server.portApi);
