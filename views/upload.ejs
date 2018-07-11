@@ -1,0 +1,252 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Upload</title>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- <script src="main.js"></script> -->
+    <style>
+        body{
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .jumbotron{
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <div class="container">
+        <div class="">
+            <%- include('partial/navbar')%>
+            <div class="jumbotron">
+                <h1 class="text-center">Upload</h1>
+            </div>
+        </div>
+        <div class="">
+            <div>
+
+                <input id="myInput" type="file" webkitdirectory directory multiple/>
+                
+                <br>    
+            </div>
+        </div>
+        <div class="row">
+            <div class="container" id="log"> 
+                
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <%- include('partial/footer.ejs') %>
+        </div>
+    </div>
+    <script>
+
+        var folder = document.getElementById("myInput");
+
+        folder.onchange=function(){
+            var i = 0;
+            //var files = folder.files;
+            console.log("pepe folder-------");
+            var file = folder.files[0];
+            var filename = file.name;
+            console.log("nombre del fichero");
+            console.log (filename);
+            console.log(file);
+            fr = new FileReader();
+            fr.onload = receivedText;
+            fr.readAsText(file);
+        
+            console.log("fr inicio");
+            console.log(fr);
+
+            function receivedText() {
+                
+                showResult(fr, "Text");
+
+                fr = new FileReader();
+                fr.onload = receivedBinary;
+                fr.readAsBinaryString(file);
+
+            }
+
+            function receivedBinary() {
+                var filebinary ="";
+                var filename = "pepe";
+                //showResult(fr, "Binary");
+                filebinary = showResult(fr, "Binary");
+                console.log("filebinary ya lleno");
+                console.log(filebinary);
+                // var miniBinary = filebinary.slice(0,50);
+                // console.log("miniBinary ya lleno");
+                // console.log(miniBinary);
+
+                var params = { "filename": filename,
+                                "filebinary": filebinary};
+
+                var paramsJSON = JSON.stringify(params);
+                console.log ("paramsJSON");
+                console.log(paramsJSON);
+
+                //var paramsJSON = {"filename": "pepe", "age": "31"}
+            
+                
+                $.ajax({
+                    type: "POST",
+                    url: "http://192.168.1.107:3083/post/upload",
+                    traditional: true,
+                    //contentType: 'application/json' ,//; chasert=utf-8' , 
+                    data: params,
+                    // cache: false,
+                    //processData: false, 
+                    dataType: 'json'
+                    }).done((res) => {
+
+                        //result = res;
+                        //alert(res);
+                        console.log("ya subido+++++++++++++++++++++++++++");
+                        console.log(res);
+                        //window.location.href= "http://192.168.1.107:3082";
+                        
+                    }).fail((err) => {
+                            console.log(err)
+                            //reject(err);
+                    })
+            }
+
+            // ajaxUpload(file).then((result) =>{
+            //     console.log("Fin, result: ", result);
+            //     alert(result);
+            //     window.location.href= "http://192.168.1.107:3082";
+            // }).catch((err) =>{
+            //     console.log(err);
+            // });
+
+            console.log("--------------------------------------------");
+
+            
+            
+        }
+
+    // function showResult(fr, label) {
+    //     return new Promise((resolve, reject) =>{
+    //         var markup, result, n, aByte, byteStr;
+    //     //console.log(fr)
+    //     markup = [];
+    //     //markup1 = []
+    //     result = fr.result;
+    //     for (n = 0; n < result.length; ++n) {
+    //         aByte = result.charCodeAt(n);
+    //         byteStr = aByte.toString(16);
+    //         if (byteStr.length < 2) {
+    //             byteStr = "0" + byteStr;
+    //         }
+    //         markup.push(byteStr);
+    //     }
+    //     //markup1.push(markup.join(" "));
+    //     //console.log("En SHOWRESULT+-+-+-+-+-+-+");
+    //     //console.log (markup);
+    //     // bodyAppend("p", label + " (" + result.length + "):");
+    //     // bodyAppend("pre", markup1);
+    //     resolve (markup);
+    //     });
+    // }
+
+    function showResult(fr, label) {
+        var markup, result, n, aByte, byteStr;
+
+        markup = [];
+        markup1 = [];
+        result = fr.result;
+        for (n = 0; n < result.length; ++n) {
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+                byteStr = "0" + byteStr;
+            }
+            markup.push(byteStr);
+        }
+        // console.log("En showResult, filebinary  markup");
+        // console.log(markup);
+        markup1 = markup.join(" ");
+        // console.log("En showResult, filebinary  markup1");
+        // console.log(markup1);
+        bodyAppend("p", label + " (" + result.length + "):");
+        bodyAppend("pre", markup.join(" "));
+
+        return markup1;
+    }
+
+    function bodyAppend(tagName, innerHTML) {
+        var elm;
+
+        elm = document.createElement(tagName);
+        elm.innerHTML = innerHTML;
+        document.body.appendChild(elm);
+    }
+
+    // function receivedBinary(fr) {
+    //     return new Promise((resolve, reject)=>{
+
+    //         var filebinary = [];
+    //         var promises = [];
+    //         promises.push(showResult(fr, "Binary"));
+    //         Promise.all(promises).then((markup) => {
+    //             console.log("pepe2  receivedBinary file-------");
+    //             console.log(filebinary);
+    //             filebinary = filebinary.concat(markup);
+    //             console.log(filebinary);
+    //             resolve(filebinary);
+    //         });
+            
+    //     });
+    // }
+            
+    // function ajaxUpload(file) {
+    //     return new Promise((resolve, reject)=>{
+    //         fr = new FileReader();
+    //         fr.readAsBinaryString(file);
+    //         console.log("En ajaxUpload /////////////////////////////////////////////////");
+    //         console.log("file");
+    //         console.log(file);
+    //         console.log("fr");
+    //         console.log(fr);
+    //         var promises= [];
+    //         var result = "";
+    //         promises.push(receivedBinary(fr));
+    //         Promise.all(promises).then((filebinary)=>{
+    //             var filebinary = filebinary
+    //             console.log("Antes de params");
+    //             console.log(filebinary);
+    //             var params = { "filename": filename,
+    //                             "filebinary": filebinary};
+            
+    //             $.ajax({
+    //                 type: "POST",
+    //                 url: "http://192.168.1.107:3083/post/upload",
+    //                 traditional: true,
+    //                 data: params
+    //                 }).done((res) => {
+
+    //                     result = res;
+    //                     // alert(res);
+    //                     // window.location.href= "http://192.168.1.107:3082";           
+
+    //                 }).fail((err) => {
+    //                         console.log(err)
+    //                         reject(err);
+    //                 })
+    //             resolve(result);
+    //         });
+    //     });   
+    // }
+       
+    </script>
+</body>
+</html>
