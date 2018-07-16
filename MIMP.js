@@ -23,7 +23,7 @@ const URLCOMPLETEUPLOAD = "http://192.168.1.106:8010/piclyapi/completeupload";
 const URLGETTOKEN = "http://192.168.1.106:8010/piclyapi/gettoken";
 const URLCREATEPICLY = "http://192.168.1.106:8010/piclyapi/createpicly";
 const APIKEY = "5bce0884a5cdd974e47f9e65a8e5dfc0be0f2c89";
-//const FILESPATH = config.paths.SAVEPATH 
+const FILESPATH = config.paths.SAVEPATH 
 
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -54,54 +54,79 @@ app.post('/post/token', (req, res)=>{
 
 app.post('/post/upload', (req, res)=>{
  
-    console.log(req.body);
+    //console.log(req.body);
    // var myObject = JSON.parse(req.body[0].filename);  
     var filename = req.body.filename;
     console.log("filename");
-    console.log(filename); 
+    console.log(filename);
+    
     var filebinary = req.body.filebinary;  
     //console.log("filebinary");
     //console.log(filebinary);
     var filebinaryArray = filebinary.split(' ');
-    console.log("filebinaryArray");
-    console.log(filebinaryArray);
+    var filebinaryArraySend =strintToHex(filebinaryArray);
+    
+    // console.log("filebinaryArraySend");
+    // console.log(filebinaryArraySend);
+
+    var filebinaryBuffer = Buffer.from(filebinaryArraySend);
+    var filesize = filebinaryBuffer.length;
+    console.log("filesize") ;
+    console.log (filesize)
+    console.log("filebinaryBuffer"); 
+    console.log(filebinaryBuffer);
     
 
-    // getToken().then((body)=>{
-    //         TOKEN = body.token;
-    //         console.log("Token: ", TOKEN);
+    getToken().then((body)=>{
+            TOKEN = body.token;
+            console.log("Token: ", TOKEN);
 
-    //         return startUpload(filename);
-    //     }).then((uploadid) =>{
-    //         var uploadid = uploadid;
-    //         console.log("uploadid: ", uploadid);
+            return startUpload(filename, filesize);
+        }).then((uploadid) =>{
+            var uploadid1 = uploadid;
+            console.log("uploadid before sendChunks: ", uploadid1);
 
-    //         console.log("antes de sendChunk");
-    //         console.log(filebinary);
-    //         return sendChunks(uploadid, filebinaryArray);
-    //     }).then((uploadid)=>{
+            return sendChunks(uploadid1, filebinaryBuffer);
+        }).then((uploadid)=>{
+            var uploadid2 = uploadid;
+            console.log("uploadid after sendChunks and before CompleteUpload: ", uploadid2);
 
-    //         return completeUpload(uploadid);
-    //     }).then((result)=> {
-    //         console.log (result);
+            return completeUpload(uploadid2);
+        }).then((result)=> {
+            console.log (result);
 
-    //         res.json({responses: 'Images is download ok'})
+            res.json({responses: 'Images is download ok'})
             
-    //     }).catch((err)=>{
-    //         console.log(err);
-    //     });
+        }).catch((err)=>{
+            console.log(err);
+        });
     
-    res.json({responses: 'Images is download ok'})
+    // res.json({responses: 'Images is download ok'})
 })
 
 
+function strintToHex(array) {
+    var filebinaryArraySend =[];
+    array.forEach( (e)=>{
+        // console.log("elemento: ");
+        // var element = e
+        // console.log(element);
+        var elementN = parseInt(e, 16);
+        // console.log("Ellemento parseado");
+        // console.log(elementN);
+        //element = "0x"+element;
+        filebinaryArraySend.push(elementN);
+    });
+    return filebinaryArraySend
+}
 
-function startUpload(filename){
+
+function startUpload(filename, filesize){
     return new Promise((resolve, reject) => {
         var jsonobject = {
             token: TOKEN,
             filename: filename,
-            filesize: ""
+            filesize: filesize
         }
 
         console.log("Request new upload")
@@ -146,9 +171,12 @@ function getToken(){
 
 function sendChunks(uploadid, filebinary){
     return new Promise((resolve, reject) => {
-        //var fileBytes = fs.readFileSync(filesize);
+        //var fileBytes = fs.readFileSync(FILESPATH + "1147097.jpg");
+        
+        var uploadidS = uploadid;
+        console.log("uploadid in sendChunks : ", uploadidS);
         console.log("filebinary llegado en sendChunk");
-        console.log(filebinary);
+        //console.log(filebinary);
         var chunks = _.chunk(filebinary, 1000);
 
         console.log(`Sending chunks, ${chunks.length} in total`);
@@ -157,13 +185,14 @@ function sendChunks(uploadid, filebinary){
         var chunkNumber = 0;
         chunks.forEach((chunk)=>{
             let chunkSize = chunk.length;
-            promises.push(sendOneChunck(uploadid, chunk, chunkNumber, chunkSize))
+            //var chunkSend = 
+            promises.push(sendOneChunck(uploadidS, chunk, chunkNumber, chunkSize))
             chunkNumber++;
-            console.log("trozo enviado");
-            console.log(chunk);
+            //  console.log("trozo enviado "+ chunkNumber);
+            //  console.log(chunk);  
         })
         Promise.all(promises).then(()=>{
-            resolve(uploadid)
+            resolve(uploadidS)
         });
     });  
 }
@@ -187,7 +216,9 @@ function sendOneChunck(uploadid, chunk, chunkNumber, chunkSize){
             if(!!err){
                 reject(err);
             }else{
-                resolve();
+                resolve(body);
+                console.log("Respuesta del trozo enviado");
+                console.log(body);
             }
         });
     });
@@ -200,6 +231,8 @@ function completeUpload(uploadid){
             uploadid: uploadid
         }
 
+        console.log("uploadid in CompleteUpload:")
+        console.log(jsonobject.uploadid);
         console.log("Complete upload")
  
         request({
@@ -211,7 +244,7 @@ function completeUpload(uploadid){
             if(!!err){
                 reject(err);
             }else{
-                resolve(body);
+                resolve(body); 
             }
         });
     });

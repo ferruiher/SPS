@@ -56,8 +56,11 @@
             console.log("pepe folder-------");
             var file = folder.files[0];
             var filename = file.name;
+            var filesize = file.size
             console.log("nombre del fichero");
             console.log (filename);
+            console.log("el tamaño del fichero");
+            console.log (filesize);
             console.log(file);
             fr = new FileReader();
             fr.onload = receivedText;
@@ -78,7 +81,6 @@
 
             function receivedBinary() {
                 var filebinary ="";
-                var filename = "pepe";
                 //showResult(fr, "Binary");
                 filebinary = showResult(fr, "Binary");
                 console.log("filebinary ya lleno");
@@ -88,6 +90,7 @@
                 // console.log(miniBinary);
 
                 var params = { "filename": filename,
+                                "filesize": filesize,
                                 "filebinary": filebinary};
 
                 var paramsJSON = JSON.stringify(params);
@@ -109,10 +112,10 @@
                     }).done((res) => {
 
                         //result = res;
-                        //alert(res);
+                        alert(res);
                         console.log("ya subido+++++++++++++++++++++++++++");
                         console.log(res);
-                        //window.location.href= "http://192.168.1.107:3082";
+                        window.location.href= "http://192.168.1.107:3082";
                         
                     }).fail((err) => {
                             console.log(err)
@@ -166,10 +169,11 @@
         result = fr.result;
         for (n = 0; n < result.length; ++n) {
             aByte = result.charCodeAt(n);
-            byteStr = aByte.toString(16);
+            byteStr = aByte.toString(16); // 16 - the number will show as an hexadecimal value
             if (byteStr.length < 2) {
                 byteStr = "0" + byteStr;
             }
+            //byteStr = "0x" + byteStr;
             markup.push(byteStr);
         }
         // console.log("En showResult, filebinary  markup");
