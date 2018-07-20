@@ -64,85 +64,9 @@
             }).catch((err)=>{
                 console.log(err);
             })
-                
-                // var file = folder.files[0];
-
-                // if (file.type == "image/jpeg" || file.type == "image/jpg" || file.type == "image/png") {
-                //     console.log("El fichero es una imagen");
-                
-                //     var filename = file.name;
-                //     var filesize = file.size
-                //     console.log("nombre del fichero");
-                //     console.log (filename);
-                //     console.log("el tamaño del fichero");
-                //     console.log (filesize);
-                //     console.log(file);
-                //     fr = new FileReader();
-                //     fr.onload = receivedText;
-                //     fr.readAsText(file);
-        
-                //     console.log("fr inicio");
-                //     console.log(fr);
-
-                //     function receivedText() {
-                
-                //         showResult(fr, "Text");
-
-                //         fr = new FileReader();
-                //         fr.onload = receivedBinary;
-                //         fr.readAsBinaryString(file);
-                //     }
-
-                //     function receivedBinary() {
-                //         var filebinary ="";
-                //         //showResult(fr, "Binary");
-                //         filebinary = showResult(fr, "Binary");
-                //         console.log("filebinary ya lleno");
-                //         console.log(filebinary);
-                //         // var miniBinary = filebinary.slice(0,50);
-                //         // console.log("miniBinary ya lleno");
-                //         // console.log(miniBinary);
-
-                //         var params = { "filename": filename,
-                //                         "filesize": filesize,
-                //                          "filebinary": filebinary};
-
-                //         var paramsJSON = JSON.stringify(params);
-                //         console.log ("paramsJSON");
-                //         console.log(paramsJSON);
-
-                //         //var paramsJSON = {"filename": "pepe", "age": "31"}
-            
-                
-                //         $.ajax({
-                //             type: "POST",
-                //             url: "http://192.168.1.107:3083/post/upload",
-                //             traditional: true,
-                //             //contentType: 'application/json' ,//; chasert=utf-8' , 
-                //              data: params,
-                //             // cache: false,
-                //             //processData: false, 
-                //             //dataType: 'json'
-                //             }).done((res) => {
-
-                //                 //result = res;
-                //                 console.log("ya subido", filename);
-                //                 console.log(res);
-                //                 if (longitud == i) {
-                //                     alert("OK");
-                //                     window.location.href= "http://192.168.1.107:3082";
-                //                 }
-                                
-                        
-                //             }).fail((err) => {
-                //                 console.log(err)
-                //                 //reject(err);
-                //             })
-                //     }
-                // } else {
-                //     console.log ("el fichero NOOOOO es  una imagen ");
-                // }  
         }
+
+
     function uploadFiles(files) {
         return new Promise ((resolve, reject)=>{
             var promises = [];
@@ -164,17 +88,12 @@
     }
 
     function call(params) {
-        console.log('---------------------------------------------------------')
-        // console.log(params)
+        
         $.ajax({
             type: "POST",
             url: "http://192.168.1.107:3083/post/upload",
-            // traditional: true,
-            //contentType: 'application/json' ,//; chasert=utf-8' , 
-                data: {data: JSON.stringify(params)},
-            // cache: false,
-            //processData: false, 
-            // dataType: 'json'
+            data: {data: JSON.stringify(params)},
+
             }).done((res) => {
 
                 //result = res;
@@ -184,7 +103,6 @@
         
             }).fail((err) => {
                 console.log(err)
-                //reject(err);
             })
     }
 
@@ -192,7 +110,6 @@
         return new Promise((resolve, reject) => {
             var file = fil;
             console.log ("file in uploadFile:-*/*-");
-            // console.log(file);
 
             if (file.type == "image/jpeg" || file.type == "image/jpg" || file.type == "image/png") {
                 var filename = file.name;
@@ -206,11 +123,6 @@
                         console.log('then del showResult')
                         var params = { "filename": filename,
                                         "filebinary": filebinary};
-
-                        
-                        console.log ("paramsJSON");
-                        //console.log (paramsJSON);
-                        //var paramsJSON = {"filename": "pepe", "age": "31"}
                         call(params);
                     });
                 }
@@ -220,11 +132,6 @@
         })
     }
     
-    function getFileBinary(fileObject) {
-        return new Promises ((resolve, reject)=>{
-            var file = fileObject;
-        });
-    }
 
     function showResult(fr, label) {
         return new Promise((res, rej) => {
@@ -239,14 +146,11 @@
                 if (byteStr.length < 2) {
                     byteStr = "0" + byteStr;
                 }
-                //byteStr = "0x" + byteStr;
                 markup.push(byteStr);
             }
-            // console.log("En showResult, filebinary  markup");
-            // console.log(markup);
+            
             markup1 = markup.join(" ");
-            // console.log("En showResult, filebinary  markup1");
-            // console.log(markup1);
+            
             bodyAppend("p", label + " (" + result.length + "):");
             bodyAppend("pre", markup.join(" "));
 
