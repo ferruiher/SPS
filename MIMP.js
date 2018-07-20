@@ -56,11 +56,13 @@ app.post('/post/upload', (req, res)=>{
  
     //console.log(req.body);
    // var myObject = JSON.parse(req.body[0].filename);  
-    var filename = req.body.filename;
-    console.log("filename");
-    console.log(filename);
+//    var a = JSON.parse(req.body)
+//    console.log(a);
     
-    var filebinary = req.body.filebinary;  
+    console.log("filename");
+        var data = JSON.parse(req.body.data)
+    var filebinary = data.filebinary;  
+    var filename = data.filename;
     //console.log("filebinary");
     //console.log(filebinary);
     var filebinaryArray = filebinary.split(' ');
@@ -95,7 +97,7 @@ app.post('/post/upload', (req, res)=>{
         }).then((result)=> {
             console.log (result);
 
-            res.json({responses: 'Images is download ok'})
+            res.json(result);
             
         }).catch((err)=>{
             console.log(err);
@@ -130,7 +132,6 @@ function startUpload(filename, filesize){
         }
 
         console.log("Request new upload")
-
         request({
             url: URLNEWUPLOAD,
             method: "POST",
@@ -217,8 +218,8 @@ function sendOneChunck(uploadid, chunk, chunkNumber, chunkSize){
                 reject(err);
             }else{
                 resolve(body);
-                console.log("Respuesta del trozo enviado");
-                console.log(body);
+                // console.log("Respuesta del trozo enviado");
+                // console.log(body);
             }
         });
     });

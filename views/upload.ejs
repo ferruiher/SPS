@@ -51,140 +51,207 @@
         var folder = document.getElementById("myInput");
 
         folder.onchange=function(){
-            var i = 0;
-            //var files = folder.files;
-            console.log("pepe folder-------");
-            var file = folder.files[0];
-            var filename = file.name;
-            var filesize = file.size
-            console.log("nombre del fichero");
-            console.log (filename);
-            console.log("el tamaño del fichero");
-            console.log (filesize);
-            console.log(file);
-            fr = new FileReader();
-            fr.onload = receivedText;
-            fr.readAsText(file);
-        
-            console.log("fr inicio");
-            console.log(fr);
 
-            function receivedText() {
+            var files = folder.files;
+            console.log("files es: "),
+            console.log(folder.files);
+
+            uploadFiles (files).then(()=>{
+                console.log("lazadas las promesas");
+                //alert("OK");
+                //window.location.href= "http://192.168.1.107:3082";
+
+            }).catch((err)=>{
+                console.log(err);
+            })
                 
-                showResult(fr, "Text");
+                // var file = folder.files[0];
 
-                fr = new FileReader();
+                // if (file.type == "image/jpeg" || file.type == "image/jpg" || file.type == "image/png") {
+                //     console.log("El fichero es una imagen");
+                
+                //     var filename = file.name;
+                //     var filesize = file.size
+                //     console.log("nombre del fichero");
+                //     console.log (filename);
+                //     console.log("el tamaño del fichero");
+                //     console.log (filesize);
+                //     console.log(file);
+                //     fr = new FileReader();
+                //     fr.onload = receivedText;
+                //     fr.readAsText(file);
+        
+                //     console.log("fr inicio");
+                //     console.log(fr);
+
+                //     function receivedText() {
+                
+                //         showResult(fr, "Text");
+
+                //         fr = new FileReader();
+                //         fr.onload = receivedBinary;
+                //         fr.readAsBinaryString(file);
+                //     }
+
+                //     function receivedBinary() {
+                //         var filebinary ="";
+                //         //showResult(fr, "Binary");
+                //         filebinary = showResult(fr, "Binary");
+                //         console.log("filebinary ya lleno");
+                //         console.log(filebinary);
+                //         // var miniBinary = filebinary.slice(0,50);
+                //         // console.log("miniBinary ya lleno");
+                //         // console.log(miniBinary);
+
+                //         var params = { "filename": filename,
+                //                         "filesize": filesize,
+                //                          "filebinary": filebinary};
+
+                //         var paramsJSON = JSON.stringify(params);
+                //         console.log ("paramsJSON");
+                //         console.log(paramsJSON);
+
+                //         //var paramsJSON = {"filename": "pepe", "age": "31"}
+            
+                
+                //         $.ajax({
+                //             type: "POST",
+                //             url: "http://192.168.1.107:3083/post/upload",
+                //             traditional: true,
+                //             //contentType: 'application/json' ,//; chasert=utf-8' , 
+                //              data: params,
+                //             // cache: false,
+                //             //processData: false, 
+                //             //dataType: 'json'
+                //             }).done((res) => {
+
+                //                 //result = res;
+                //                 console.log("ya subido", filename);
+                //                 console.log(res);
+                //                 if (longitud == i) {
+                //                     alert("OK");
+                //                     window.location.href= "http://192.168.1.107:3082";
+                //                 }
+                                
+                        
+                //             }).fail((err) => {
+                //                 console.log(err)
+                //                 //reject(err);
+                //             })
+                //     }
+                // } else {
+                //     console.log ("el fichero NOOOOO es  una imagen ");
+                // }  
+        }
+    function uploadFiles(files) {
+        return new Promise ((resolve, reject)=>{
+            var promises = [];
+            var numFile = files.length;
+            console.log("nº de files en uploadFiles");
+            console.log(numFile);
+            console.log("Antes del for: ");
+            for (var i  = 0; i  < numFile; i++){           
+                console.log("dentro del for antes del push");
+                promises.push(uploadFile(files[i]));
+                console.log("el fichero es en el for: ");
+                // console.log(files[i]);
+            }
+            console.log("despues de for");
+            Promise.all(promises).then (()=> {
+                resolve();
+            })
+        });
+    }
+
+    function call(params) {
+        console.log('---------------------------------------------------------')
+        // console.log(params)
+        $.ajax({
+            type: "POST",
+            url: "http://192.168.1.107:3083/post/upload",
+            // traditional: true,
+            //contentType: 'application/json' ,//; chasert=utf-8' , 
+                data: {data: JSON.stringify(params)},
+            // cache: false,
+            //processData: false, 
+            // dataType: 'json'
+            }).done((res) => {
+
+                //result = res;
+                console.log("ya subido", filename);
+                console.log(res);
+                resolve();
+        
+            }).fail((err) => {
+                console.log(err)
+                //reject(err);
+            })
+    }
+
+    function uploadFile(fil) {
+        return new Promise((resolve, reject) => {
+            var file = fil;
+            console.log ("file in uploadFile:-*/*-");
+            // console.log(file);
+
+            if (file.type == "image/jpeg" || file.type == "image/jpg" || file.type == "image/png") {
+                var filename = file.name;
+                let fr = new FileReader();
                 fr.onload = receivedBinary;
                 fr.readAsBinaryString(file);
 
-            }
+                function receivedBinary() {
+                    console.log("filebinary");
+                    showResult(fr, "Binary").then((filebinary) => {
+                        console.log('then del showResult')
+                        var params = { "filename": filename,
+                                        "filebinary": filebinary};
 
-            function receivedBinary() {
-                var filebinary ="";
-                //showResult(fr, "Binary");
-                filebinary = showResult(fr, "Binary");
-                console.log("filebinary ya lleno");
-                console.log(filebinary);
-                // var miniBinary = filebinary.slice(0,50);
-                // console.log("miniBinary ya lleno");
-                // console.log(miniBinary);
-
-                var params = { "filename": filename,
-                                "filesize": filesize,
-                                "filebinary": filebinary};
-
-                var paramsJSON = JSON.stringify(params);
-                console.log ("paramsJSON");
-                console.log(paramsJSON);
-
-                //var paramsJSON = {"filename": "pepe", "age": "31"}
-            
-                
-                $.ajax({
-                    type: "POST",
-                    url: "http://192.168.1.107:3083/post/upload",
-                    traditional: true,
-                    //contentType: 'application/json' ,//; chasert=utf-8' , 
-                    data: params,
-                    // cache: false,
-                    //processData: false, 
-                    dataType: 'json'
-                    }).done((res) => {
-
-                        //result = res;
-                        alert(res);
-                        console.log("ya subido+++++++++++++++++++++++++++");
-                        console.log(res);
-                        window.location.href= "http://192.168.1.107:3082";
                         
-                    }).fail((err) => {
-                            console.log(err)
-                            //reject(err);
-                    })
+                        console.log ("paramsJSON");
+                        //console.log (paramsJSON);
+                        //var paramsJSON = {"filename": "pepe", "age": "31"}
+                        call(params);
+                    });
+                }
+            } else {
+                console.log ("el fichero NOOOOO es  una imagen ");
             }
-
-            // ajaxUpload(file).then((result) =>{
-            //     console.log("Fin, result: ", result);
-            //     alert(result);
-            //     window.location.href= "http://192.168.1.107:3082";
-            // }).catch((err) =>{
-            //     console.log(err);
-            // });
-
-            console.log("--------------------------------------------");
-
-            
-            
-        }
-
-    // function showResult(fr, label) {
-    //     return new Promise((resolve, reject) =>{
-    //         var markup, result, n, aByte, byteStr;
-    //     //console.log(fr)
-    //     markup = [];
-    //     //markup1 = []
-    //     result = fr.result;
-    //     for (n = 0; n < result.length; ++n) {
-    //         aByte = result.charCodeAt(n);
-    //         byteStr = aByte.toString(16);
-    //         if (byteStr.length < 2) {
-    //             byteStr = "0" + byteStr;
-    //         }
-    //         markup.push(byteStr);
-    //     }
-    //     //markup1.push(markup.join(" "));
-    //     //console.log("En SHOWRESULT+-+-+-+-+-+-+");
-    //     //console.log (markup);
-    //     // bodyAppend("p", label + " (" + result.length + "):");
-    //     // bodyAppend("pre", markup1);
-    //     resolve (markup);
-    //     });
-    // }
+        })
+    }
+    
+    function getFileBinary(fileObject) {
+        return new Promises ((resolve, reject)=>{
+            var file = fileObject;
+        });
+    }
 
     function showResult(fr, label) {
-        var markup, result, n, aByte, byteStr;
+        return new Promise((res, rej) => {
+            var markup, result, n, aByte, byteStr;
 
-        markup = [];
-        markup1 = [];
-        result = fr.result;
-        for (n = 0; n < result.length; ++n) {
-            aByte = result.charCodeAt(n);
-            byteStr = aByte.toString(16); // 16 - the number will show as an hexadecimal value
-            if (byteStr.length < 2) {
-                byteStr = "0" + byteStr;
+            markup = [];
+            markup1 = [];
+            result = fr.result;
+            for (n = 0; n < result.length; ++n) {
+                aByte = result.charCodeAt(n);
+                byteStr = aByte.toString(16); // 16 - the number will show as an hexadecimal value
+                if (byteStr.length < 2) {
+                    byteStr = "0" + byteStr;
+                }
+                //byteStr = "0x" + byteStr;
+                markup.push(byteStr);
             }
-            //byteStr = "0x" + byteStr;
-            markup.push(byteStr);
-        }
-        // console.log("En showResult, filebinary  markup");
-        // console.log(markup);
-        markup1 = markup.join(" ");
-        // console.log("En showResult, filebinary  markup1");
-        // console.log(markup1);
-        bodyAppend("p", label + " (" + result.length + "):");
-        bodyAppend("pre", markup.join(" "));
+            // console.log("En showResult, filebinary  markup");
+            // console.log(markup);
+            markup1 = markup.join(" ");
+            // console.log("En showResult, filebinary  markup1");
+            // console.log(markup1);
+            bodyAppend("p", label + " (" + result.length + "):");
+            bodyAppend("pre", markup.join(" "));
 
-        return markup1;
+            res(markup1);
+        });
     }
 
     function bodyAppend(tagName, innerHTML) {
@@ -195,61 +262,7 @@
         document.body.appendChild(elm);
     }
 
-    // function receivedBinary(fr) {
-    //     return new Promise((resolve, reject)=>{
-
-    //         var filebinary = [];
-    //         var promises = [];
-    //         promises.push(showResult(fr, "Binary"));
-    //         Promise.all(promises).then((markup) => {
-    //             console.log("pepe2  receivedBinary file-------");
-    //             console.log(filebinary);
-    //             filebinary = filebinary.concat(markup);
-    //             console.log(filebinary);
-    //             resolve(filebinary);
-    //         });
-            
-    //     });
-    // }
-            
-    // function ajaxUpload(file) {
-    //     return new Promise((resolve, reject)=>{
-    //         fr = new FileReader();
-    //         fr.readAsBinaryString(file);
-    //         console.log("En ajaxUpload /////////////////////////////////////////////////");
-    //         console.log("file");
-    //         console.log(file);
-    //         console.log("fr");
-    //         console.log(fr);
-    //         var promises= [];
-    //         var result = "";
-    //         promises.push(receivedBinary(fr));
-    //         Promise.all(promises).then((filebinary)=>{
-    //             var filebinary = filebinary
-    //             console.log("Antes de params");
-    //             console.log(filebinary);
-    //             var params = { "filename": filename,
-    //                             "filebinary": filebinary};
-            
-    //             $.ajax({
-    //                 type: "POST",
-    //                 url: "http://192.168.1.107:3083/post/upload",
-    //                 traditional: true,
-    //                 data: params
-    //                 }).done((res) => {
-
-    //                     result = res;
-    //                     // alert(res);
-    //                     // window.location.href= "http://192.168.1.107:3082";           
-
-    //                 }).fail((err) => {
-    //                         console.log(err)
-    //                         reject(err);
-    //                 })
-    //             resolve(result);
-    //         });
-    //     });   
-    // }
+   
        
     </script>
 </body>
